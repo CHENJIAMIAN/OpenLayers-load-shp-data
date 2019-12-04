@@ -1,0 +1,101 @@
+﻿<!doctype html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.1.1/css/ol.css"
+    type="text/css">
+  <style>
+    body,
+    html {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .map {
+      height: 100%;
+      width: 100%;
+      position: absolute;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.1.1/build/ol.js"></script>
+  <script src="https://unpkg.com/shapefile@0.6"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <h2>My Map</h2>
+  <div id="map" class="map"></div>
+  <script type="text/javascript">
+    // ol/featureloader~FeatureLoader with ESRI Shape file support
+    // depends on: https://github.com/mbostock/shapefile
+    let SHPloader = function (extent, resolution, projection) {
+      const selfself = this;
+      shapefile.open(selfself.getUrl()) 
+        .then(source => source.read()
+          .then(function load(result) {
+            if (result.done) return;
+            selfself.addFeatures(
+              selfself.getFormat().readFeatures(result.value)
+            );
+            return source.read().then(load);
+          }))
+        .catch(error => selfself.removeLoadedExtent(extent))
+    };
+
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([37.41, 8.82]),
+        zoom: 3
+      })
+    });
+    let layer = new ol.layer.Vector({
+      title: 'ESRI Shape file',
+      source: new ol.source.Vector({
+        format: new ol.format.GeoJSON(),
+        loader: function (extent, resolution, projection) {
+          const selfself = this;
+          shapefile.open(selfself.getUrl())
+            .then(source => source.read()
+              .then(function load(result) {
+                if (result.done) return;
+                selfself.addFeatures(
+                  selfself.getFormat().readFeatures(result
+                    .value) //属性信息存在selfself.getFeatures()[0].values_中
+                );
+                return source.read().then(load);
+              }))
+            .catch(error => selfself.removeLoadedExtent(extent))
+        },
+        url: 'data/boundaries.shp' // parsed with DBF and SHX files
+      }),
+    })
+
+    map.addLayer(layer);
+  </script>
+  <script src="./shpToOpenlayers.js"></script>
+
+</body>
+
+</html>
+
+
+
+<!-- <script>
+  shapefile.open("./data/world_map.shp")
+    .then(source => source.read()
+      .then(function log(result) {
+        if (result.done) return;
+        //   JSON.stringify(result.value)
+        console.log(result.value);
+        return source.read().then(log);
+      }))
+    .catch(error => console.error(error.stack));
+</script> -->
