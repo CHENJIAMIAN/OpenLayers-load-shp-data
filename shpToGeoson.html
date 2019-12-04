@@ -30,7 +30,7 @@
   <script type="text/javascript">
     // ol/featureloader~FeatureLoader with ESRI Shape file support
     // depends on: https://github.com/mbostock/shapefile
-    let SHPloader = function (extent, resolution, projection) {
+    let SHPloader = function (extent, resolution, projection) { 
       const selfself = this;
       shapefile.open(selfself.getUrl()) 
         .then(source => source.read()
